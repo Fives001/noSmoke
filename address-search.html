@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>통합검색 5자리 우편번호 조회</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --text: #1c1f23;
+    --muted: #6b7280;
+    --line: #e2e5ea;
+    --accent: #1e5eff;
+    --accent-weak: #eaf0ff;
+    --danger: #c0392b;
+    --danger-weak: #fdecea;
+    --shadow: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --panel: #1d2026;
+      --text: #e8eaed;
+      --muted: #9aa1ab;
+      --line: #2e333b;
+      --accent: #6f9bff;
+      --accent-weak: #1e2740;
+      --danger: #ff8a80;
+      --danger-weak: #3a2320;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 64px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+
+  header h1 { font-size: 20px; margin: 0 0 4px; }
+  header p { margin: 0 0 20px; color: var(--muted); font-size: 13px; }
+  header code { font-size: 12px; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .card-body { padding: 16px; }
+
+  /* ---- 검색 폼 ---- */
+  .search-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .search-row .field { flex: 1 1 260px; min-width: 0; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  input[type=text], input[type=password], select {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent-weak); border-color: var(--accent); }
+  button {
+    padding: 9px 18px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  button:disabled { opacity: .55; cursor: default; }
+  button.ghost { background: transparent; color: var(--accent); border-color: var(--line); }
+  .search-row .actions { display: flex; align-items: flex-end; gap: 8px; }
+
+  /* ---- 설정 ---- */
+  details.settings { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+  details.settings > summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 12px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .checkline { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-top: 20px; }
+
+  /* ---- 상태 표시 ---- */
+  .status { padding: 24px 16px; text-align: center; color: var(--muted); }
+  .status.error { color: var(--danger); background: var(--danger-weak); text-align: left; border-radius: 6px; margin: 16px; padding: 12px 14px; }
+  .status.error strong { display: block; margin-bottom: 4px; }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: var(--accent-weak); color: var(--accent); margin-left: 8px; vertical-align: middle;
+  }
+
+  /* ---- 결과 ---- */
+  .result-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    padding: 12px 16px; border-bottom: 1px solid var(--line);
+  }
+  .result-head h2 { font-size: 14px; margin: 0; }
+  .result-head .count { color: var(--muted); font-size: 13px; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; background: var(--bg); }
+  tbody tr:hover { background: var(--accent-weak); }
+  td.zip { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.addr { min-width: 220px; }
+  td.pick { white-space: nowrap; }
+  .mark { background: rgba(255, 214, 0, .35); border-radius: 2px; }
+  .copy-btn { padding: 4px 10px; font-size: 12px; background: transparent; color: var(--accent); border-color: var(--line); }
+
+  /* ---- 페이징 ---- */
+  .pager { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; padding: 14px; }
+  .pager button { padding: 6px 11px; font-size: 13px; background: transparent; color: var(--text); border-color: var(--line); }
+  .pager button[aria-current="page"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pager .gap { color: var(--muted); padding: 0 4px; }
+
+  /* ---- 선택 결과 ---- */
+  #picked { display: none; }
+  #picked dl { display: grid; grid-template-columns: 96px 1fr; gap: 6px 12px; margin: 0; }
+  #picked dt { color: var(--muted); font-size: 13px; }
+  #picked dd { margin: 0; word-break: break-all; }
+
+  @media (max-width: 560px) {
+    th.hide-sm, td.hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>통합검색 5자리 우편번호 조회</h1>
+    <p>
+      우정사업본부 <code>getNewAddressListAreaCdSearchAll</code> — 검색어에 해당하는 도로명주소 / 지번주소와 5자리 우편번호를 조회합니다.
+    </p>
+  </header>
+
+  <!-- 검색 -->
+  <section class="card">
+    <div class="card-body">
+      <form id="searchForm">
+        <div class="search-row">
+          <div class="field">
+            <label for="srchwrd">검색어 <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="srchwrd" name="srchwrd" maxlength="200" placeholder="예) 세종로17, 공평동, 강남구 테헤란로 152" autocomplete="off" required>
+          </div>
+          <div class="field" style="flex: 0 0 140px;">
+            <label for="countPerPage">페이지당 개수</label>
+            <select id="countPerPage">
+              <option value="10" selected>10건</option>
+              <option value="20">20건</option>
+              <option value="30">30건</option>
+              <option value="50">50건 (최대)</option>
+            </select>
+          </div>
+          <div class="actions">
+            <button type="submit" id="searchBtn">검색</button>
+            <button type="button" class="ghost" id="resetBtn">초기화</button>
+          </div>
+        </div>
+
+        <details class="settings" id="settingsBox">
+          <summary>API 연결 설정 <span class="badge" id="modeBadge">데모 모드</span></summary>
+          <div class="settings-grid">
+            <div>
+              <label for="serviceKey">서비스 인증키 (ServiceKey)</label>
+              <input type="password" id="serviceKey" placeholder="공공데이터포털에서 발급받은 인증키" autocomplete="off">
+              <p class="hint">브라우저 localStorage에만 저장되며 외부로 전송되지 않습니다.</p>
+            </div>
+            <div>
+              <label for="proxyUrl">프록시 URL (선택)</label>
+              <input type="text" id="proxyUrl" placeholder="예) http://localhost:8080/postal">
+              <p class="hint">
+                openapi.epost.go.kr은 CORS를 허용하지 않아 브라우저에서 직접 호출하면 차단됩니다.
+                실제 조회 시에는 프록시 주소를 입력하세요. (README 참고)
+              </p>
+            </div>
+            <div>
+              <label class="checkline">
+                <input type="checkbox" id="demoMode" checked>
+                데모 모드 (내장 샘플 데이터로 조회)
+              </label>
+              <p class="hint">인증키 없이 화면 동작을 확인할 수 있습니다.</p>
+            </div>
+          </div>
+        </details>
+      </form>
+    </div>
+  </section>
+
+  <!-- 선택한 주소 -->
+  <section class="card" id="picked">
+    <div class="card-body">
+      <dl>
+        <dt>우편번호</dt><dd id="pickZip">-</dd>
+        <dt>도로명주소</dt><dd id="pickLnm">-</dd>
+        <dt>지번주소</dt><dd id="pickRn">-</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <section class="card">
+    <div class="result-head">
+      <h2>조회 결과</h2>
+      <span class="count" id="resultCount"></span>
+    </div>
+    <div id="resultArea">
+      <div class="status">검색어를 입력한 뒤 <strong>검색</strong> 버튼을 눌러주세요.</div>
+    </div>
+    <div class="pager" id="pager" hidden></div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------
+   * 사양서 기준 서비스 정보
+   *   오퍼레이션 : getNewAddressListAreaCdSearchAll (통합검색)
+   *   요청 : srchwrd(검색어), countPerPage(페이지당 개수, 최대 50), currentPage(페이지 번호)
+   *   응답 : xsync > xsyncData* — zipNo(우편번호5), lnmAdres(도로명주소), rnAdres(지번주소)
+   *          마지막 xsyncData 에 totalCount / countPerPage / totalPage / currentPage
+   * ------------------------------------------------------------------ */
+  var API_BASE = "http://openapi.epost.go.kr/postal/retrieveNewAdressAreaCdSearchAllService"
+               + "/retrieveNewAdressAreaCdSearchAllService/getNewAddressListAreaCdSearchAll";
+  var MAX_COUNT_PER_PAGE = 50;
+  var STORE_KEY = "epost.addrSearch.settings";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var els = {
+    form: $("searchForm"), srchwrd: $("srchwrd"), countPerPage: $("countPerPage"),
+    searchBtn: $("searchBtn"), resetBtn: $("resetBtn"),
+    serviceKey: $("serviceKey"), proxyUrl: $("proxyUrl"), demoMode: $("demoMode"),
+    settingsBox: $("settingsBox"), modeBadge: $("modeBadge"),
+    resultArea: $("resultArea"), resultCount: $("resultCount"), pager: $("pager"),
+    picked: $("picked"), pickZip: $("pickZip"), pickLnm: $("pickLnm"), pickRn: $("pickRn")
+  };
+
+  var state = { keyword: "", perPage: 10, page: 1, totalPage: 1, loading: false };
+
+  /* ---------------- 설정 저장 / 복원 ---------------- */
+  function loadSettings() {
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch (e) { /* 무시 */ }
+    els.serviceKey.value = saved.serviceKey || "";
+    els.proxyUrl.value = saved.proxyUrl || "";
+    els.demoMode.checked = saved.demoMode !== false;
+    updateModeBadge();
+  }
+  function saveSettings() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        serviceKey: els.serviceKey.value.trim(),
+        proxyUrl: els.proxyUrl.value.trim(),
+        demoMode: els.demoMode.checked
+      }));
+    } catch (e) { /* 저장 불가 환경 무시 */ }
+    updateModeBadge();
+  }
+  function updateModeBadge() {
+    els.modeBadge.textContent = els.demoMode.checked ? "데모 모드" : "실 API 호출";
+  }
+
+  /* ---------------- 요청 URL 조립 ---------------- */
+  function buildUrl(keyword, perPage, page) {
+    var base = els.proxyUrl.value.trim() || API_BASE;
+    var qs = "ServiceKey=" + encodeURIComponent(els.serviceKey.value.trim())
+           + "&countPerPage=" + encodeURIComponent(perPage)
+           + "&currentPage=" + encodeURIComponent(page)
+           + "&srchwrd=" + encodeURIComponent(keyword);
+    return base + (base.indexOf("?") === -1 ? "?" : "&") + qs;
+  }
+
+  /* ---------------- 응답 XML 파싱 ---------------- */
+  function textOf(node, tag) {
+    var el = node.getElementsByTagName(tag)[0];
+    return el ? (el.textContent || "").trim() : "";
+  }
+
+  function toItem(node) {
+    return {
+      zipNo: textOf(node, "zipNo"),
+      lnmAdres: textOf(node, "lnmAdres"),  // 도로명주소
+      rnAdres: textOf(node, "rnAdres")     // 지번주소
+    };
+  }
+  function toMeta(node) {
+    return {
+      totalCount: parseInt(textOf(node, "totalCount"), 10) || 0,
+      countPerPage: parseInt(textOf(node, "countPerPage"), 10) || state.perPage,
+      totalPage: parseInt(textOf(node, "totalPage"), 10) || 1,
+      currentPage: parseInt(textOf(node, "currentPage"), 10) || state.page
+    };
+  }
+
+  /*
+   * 두 가지 응답 형식을 모두 지원한다.
+   *  (1) 운영 응답 : <NewAddressListResponse><cmmMsgHeader>…</cmmMsgHeader>
+   *                  <newAddressListAreaCdSearchAll>…</newAddressListAreaCdSearchAll>*
+   *  (2) 사양서 샘플 : <xsync><xsyncData>…</xsyncData>*  (마지막 노드가 페이징 정보)
+   */
+  function parseResponse(xmlText) {
+    var doc = new DOMParser().parseFromString(xmlText, "text/xml");
+    if (doc.getElementsByTagName("parsererror").length) {
+      throw new Error("응답 XML을 해석할 수 없습니다.");
+    }
+
+    // 인증 오류 등 공통 메시지 헤더 처리
+    var errMsg = textOf(doc, "errMsg") || textOf(doc, "returnAuthMsg") || textOf(doc, "cmmMsgDesc");
+    var successYN = textOf(doc, "successYN");
+    if (errMsg) { throw new Error(errMsg); }
+    if (successYN && successYN.toUpperCase() === "N") {
+      throw new Error("서비스가 오류를 반환했습니다. (returnCode: " + (textOf(doc, "returnCode") || "-") + ")");
+    }
+
+    var items = [], meta = null, i;
+
+    // (1) 운영 응답 형식
+    var listNodes = doc.getElementsByTagName("newAddressListAreaCdSearchAll");
+    for (i = 0; i < listNodes.length; i++) { items.push(toItem(listNodes[i])); }
+    var header = doc.getElementsByTagName("cmmMsgHeader")[0];
+    if (header && header.getElementsByTagName("totalCount").length) { meta = toMeta(header); }
+
+    // (2) 사양서 샘플 형식
+    if (!items.length || !meta) {
+      var nodes = doc.getElementsByTagName("xsyncData");
+      for (i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        if (n.getElementsByTagName("totalCount").length) {
+          if (!meta) { meta = toMeta(n); }
+        } else if (n.getElementsByTagName("zipNo").length) {
+          items.push(toItem(n));
+        }
+      }
+    }
+
+    if (!meta) {
+      meta = { totalCount: items.length, countPerPage: state.perPage, totalPage: 1, currentPage: state.page };
+    }
+    return { items: items, meta: meta };
+  }
+
+  /* ---------------- 데모 데이터 ---------------- */
+  var DEMO_DATA = [
+    { zipNo: "12621", lnmAdres: "경기도 여주시 세종로 17 (홍문동)",        rnAdres: "경기도 여주시 홍문동 111-15" },
+    { zipNo: "12621", lnmAdres: "경기도 여주시 세종로 17-1 (홍문동)",      rnAdres: "경기도 여주시 홍문동 111-2" },
+    { zipNo: "12633", lnmAdres: "경기도 여주시 세종로113번길 17-1 (홍문동)", rnAdres: "경기도 여주시 홍문동 257-9" },
+    { zipNo: "12633", lnmAdres: "경기도 여주시 세종로113번길 17-3 (홍문동)", rnAdres: "경기도 여주시 홍문동 257-5" },
+    { zipNo: "12633", lnmAdres: "경기도 여주시 세종로113번길 17-5 (홍문동)", rnAdres: "경기도 여주시 홍문동 258-4" },
+    { zipNo: "12633", lnmAdres: "경기도 여주시 세종로113번길 17-8 (홍문동)", rnAdres: "경기도 여주시 홍문동 258-2" },
+    { zipNo: "12621", lnmAdres: "경기도 여주시 세종로13번길 17 (상동)",    rnAdres: "경기도 여주시 상동 233" },
+    { zipNo: "12622", lnmAdres: "경기도 여주시 세종로14번길 17 (창동)",    rnAdres: "경기도 여주시 창동 250-1" },
+    { zipNo: "12622", lnmAdres: "경기도 여주시 세종로14번길 17-1 (창동)",  rnAdres: "경기도 여주시 창동 64-3" },
+    { zipNo: "12627", lnmAdres: "경기도 여주시 세종로40번길 17 (창동)",    rnAdres: "경기도 여주시 창동 146-1" },
+    { zipNo: "12627", lnmAdres: "경기도 여주시 세종로40번길 17-2 (창동)",  rnAdres: "경기도 여주시 창동 146-5" },
+    { zipNo: "12621", lnmAdres: "경기도 여주시 세종로 21 (홍문동)",        rnAdres: "경기도 여주시 홍문동 112-3" },
+    { zipNo: "03186", lnmAdres: "서울특별시 종로구 공평동 100",            rnAdres: "서울특별시 종로구 공평동 100" },
+    { zipNo: "03186", lnmAdres: "서울특별시 종로구 우정국로2길 21 (공평동)", rnAdres: "서울특별시 종로구 공평동 194" },
+    { zipNo: "03185", lnmAdres: "서울특별시 종로구 종로 51 (공평동)",      rnAdres: "서울특별시 종로구 공평동 100-1" },
+    { zipNo: "06236", lnmAdres: "서울특별시 강남구 테헤란로 152 (역삼동)", rnAdres: "서울특별시 강남구 역삼동 737" },
+    { zipNo: "06232", lnmAdres: "서울특별시 강남구 테헤란로 202 (역삼동)", rnAdres: "서울특별시 강남구 역삼동 720-1" },
+    { zipNo: "36991", lnmAdres: "경상북도 문경시 점촌4동 1-11",            rnAdres: "경상북도 문경시 점촌4동 1-11" },
+    { zipNo: "30112", lnmAdres: "세종특별자치시 도움5로 20 (어진동)",      rnAdres: "세종특별자치시 어진동 640" },
+    { zipNo: "13529", lnmAdres: "경기도 성남시 분당구 판교역로 235 (삼평동)", rnAdres: "경기도 성남시 분당구 삼평동 681" }
+  ];
+
+  function demoSearch(keyword, perPage, page) {
+    var q = keyword.replace(/\s+/g, "");
+    var hit = DEMO_DATA.filter(function (row) {
+      var hay = (row.zipNo + row.lnmAdres + row.rnAdres).replace(/\s+/g, "");
+      return hay.indexOf(q) !== -1;
+    });
+    var totalCount = hit.length;
+    var totalPage = Math.max(1, Math.ceil(totalCount / perPage));
+    var start = (page - 1) * perPage;
+    return {
+      items: hit.slice(start, start + perPage),
+      meta: { totalCount: totalCount, countPerPage: perPage, totalPage: totalPage, currentPage: page }
+    };
+  }
+
+  /* ---------------- 조회 실행 ---------------- */
+  function search(page) {
+    var keyword = els.srchwrd.value.trim();
+    if (!keyword) {
+      showError("검색어를 입력해주세요.", "검색어(srchwrd)는 필수 항목입니다.");
+      els.srchwrd.focus();
+      return;
+    }
+    var perPage = Math.min(parseInt(els.countPerPage.value, 10) || 10, MAX_COUNT_PER_PAGE);
+
+    state.keyword = keyword;
+    state.perPage = perPage;
+    state.page = page;
+    setLoading(true);
+    hidePicked();
+
+    var request = els.demoMode.checked
+      ? Promise.resolve(demoSearch(keyword, perPage, page))
+      : fetch(buildUrl(keyword, perPage, page), { headers: { "Accept": "application/xml" } })
+          .then(function (res) {
+            if (!res.ok) { throw new Error("HTTP " + res.status + " " + res.statusText); }
+            return res.text();
+          })
+          .then(parseResponse);
+
+    request.then(function (data) {
+      state.totalPage = data.meta.totalPage;
+      renderResults(data.items, data.meta);
+    }).catch(function (err) {
+      renderError(err);
+    }).then(function () {
+      setLoading(false);
+    });
+  }
+
+  function setLoading(on) {
+    state.loading = on;
+    els.searchBtn.disabled = on;
+    els.searchBtn.textContent = on ? "조회 중…" : "검색";
+    if (on) {
+      els.resultArea.innerHTML = '<div class="status">조회 중입니다…</div>';
+      els.resultCount.textContent = "";
+      els.pager.hidden = true;
+    }
+  }
+
+  /* ---------------- 렌더링 ---------------- */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // 검색어와 일치하는 부분을 강조 (공백 제거 후 비교하지 않고 단순 부분일치)
+  function highlight(text, keyword) {
+    var safe = escapeHtml(text);
+    var q = keyword.trim();
+    if (!q) { return safe; }
+    var pattern = q.split(/\s+/).map(function (t) {
+      return t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }).filter(Boolean).join("|");
+    if (!pattern) { return safe; }
+    return safe.replace(new RegExp("(" + pattern + ")", "g"), '<span class="mark">$1</span>');
+  }
+
+  function renderResults(items, meta) {
+    if (!items.length) {
+      els.resultCount.textContent = "";
+      els.resultArea.innerHTML = '<div class="status">'
+        + '“' + escapeHtml(state.keyword) + '” 에 대한 검색 결과가 없습니다.<br>'
+        + '도로명 + 건물번호(예: 세종로 17) 또는 동/읍/면 이름으로 다시 검색해보세요.</div>';
+      els.pager.hidden = true;
+      return;
+    }
+
+    var rows = items.map(function (row, idx) {
+      var no = (meta.currentPage - 1) * meta.countPerPage + idx + 1;
+      return '<tr>'
+        + '<td class="hide-sm">' + no + '</td>'
+        + '<td class="zip">' + escapeHtml(row.zipNo) + '</td>'
+        + '<td class="addr">' + highlight(row.lnmAdres, state.keyword) + '</td>'
+        + '<td class="addr">' + highlight(row.rnAdres, state.keyword) + '</td>'
+        + '<td class="pick"><button type="button" class="copy-btn" data-idx="' + idx + '">선택</button></td>'
+        + '</tr>';
+    }).join("");
+
+    els.resultArea.innerHTML =
+      '<div class="table-scroll"><table>'
+      + '<thead><tr>'
+      + '<th class="hide-sm" style="width:52px">번호</th>'
+      + '<th style="width:88px">우편번호</th>'
+      + '<th>도로명주소</th>'
+      + '<th>지번주소</th>'
+      + '<th style="width:72px"></th>'
+      + '</tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table></div>';
+
+    els.resultCount.textContent =
+      "전체 " + meta.totalCount.toLocaleString() + "건 중 "
+      + meta.currentPage + " / " + meta.totalPage + " 페이지";
+
+    els.resultArea.querySelectorAll(".copy-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        showPicked(items[parseInt(btn.dataset.idx, 10)]);
+      });
+    });
+
+    renderPager(meta);
+  }
+
+  function renderPager(meta) {
+    var total = meta.totalPage, cur = meta.currentPage;
+    if (total <= 1) { els.pager.hidden = true; els.pager.innerHTML = ""; return; }
+
+    var html = '<button type="button" data-page="' + (cur - 1) + '"' + (cur <= 1 ? " disabled" : "") + '>이전</button>';
+    // 현재 페이지 기준 앞뒤 2개 + 처음/끝 페이지 노출
+    var pages = [];
+    for (var p = 1; p <= total; p++) {
+      if (p === 1 || p === total || Math.abs(p - cur) <= 2) { pages.push(p); }
+    }
+    var prev = 0;
+    pages.forEach(function (p) {
+      if (prev && p - prev > 1) { html += '<span class="gap">…</span>'; }
+      html += '<button type="button" data-page="' + p + '"' + (p === cur ? ' aria-current="page"' : "") + '>' + p + '</button>';
+      prev = p;
+    });
+    html += '<button type="button" data-page="' + (cur + 1) + '"' + (cur >= total ? " disabled" : "") + '>다음</button>';
+
+    els.pager.innerHTML = html;
+    els.pager.hidden = false;
+    els.pager.querySelectorAll("button[data-page]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var p = parseInt(btn.dataset.page, 10);
+        if (p >= 1 && p <= total && p !== cur) { search(p); window.scrollTo({ top: 0, behavior: "smooth" }); }
+      });
+    });
+  }
+
+  function renderError(err) {
+    var msg = err && err.message ? err.message : String(err);
+    var detail = "";
+    if (/Failed to fetch|NetworkError|CORS/i.test(msg)) {
+      detail = "openapi.epost.go.kr은 CORS 헤더를 제공하지 않아 브라우저에서 직접 호출할 수 없습니다. "
+             + "「API 연결 설정」에서 프록시 URL을 지정하거나, 데모 모드로 화면을 확인하세요.";
+    } else if (/SERVICE_KEY|인증|AUTH/i.test(msg)) {
+      detail = "서비스 인증키(ServiceKey)를 확인해주세요.";
+    }
+    showError("조회에 실패했습니다.", msg + (detail ? "<br><br>" + detail : ""));
+  }
+
+  function showError(title, detailHtml) {
+    els.resultArea.innerHTML = '<div class="status error"><strong>' + escapeHtml(title) + '</strong>' + (detailHtml || "") + '</div>';
+    els.resultCount.textContent = "";
+    els.pager.hidden = true;
+  }
+
+  function showPicked(row) {
+    els.pickZip.textContent = row.zipNo;
+    els.pickLnm.textContent = row.lnmAdres || "-";
+    els.pickRn.textContent = row.rnAdres || "-";
+    els.picked.style.display = "block";
+    var text = "(" + row.zipNo + ") " + (row.lnmAdres || row.rnAdres);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(function () { /* 클립보드 권한 없음 */ });
+    }
+  }
+  function hidePicked() { els.picked.style.display = "none"; }
+
+  /* ---------------- 이벤트 ---------------- */
+  els.form.addEventListener("submit", function (e) { e.preventDefault(); search(1); });
+  els.resetBtn.addEventListener("click", function () {
+    els.srchwrd.value = "";
+    els.countPerPage.value = "10";
+    hidePicked();
+    els.resultArea.innerHTML = '<div class="status">검색어를 입력한 뒤 <strong>검색</strong> 버튼을 눌러주세요.</div>';
+    els.resultCount.textContent = "";
+    els.pager.hidden = true;
+    els.srchwrd.focus();
+  });
+  els.countPerPage.addEventListener("change", function () { if (state.keyword) { search(1); } });
+  [els.serviceKey, els.proxyUrl].forEach(function (el) { el.addEventListener("change", saveSettings); });
+  els.demoMode.addEventListener("change", function () {
+    saveSettings();
+    if (!els.demoMode.checked && !els.serviceKey.value.trim()) { els.settingsBox.open = true; }
+  });
+
+  loadSettings();
+  els.srchwrd.focus();
+})();
+</script>
+</body>
+</html>
