@@ -1,0 +1,24 @@
+{
+  "name": "금연 기록 - noSmoke",
+  "short_name": "금연",
+  "description": "금연 경과 시간, 절약 금액, 건강 회복 단계를 기록하는 금연 앱",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f6f8",
+  "theme_color": "#0f766e",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "건강 회복 단계", "url": "./index.html#health" },
+    { "name": "기록 보기", "url": "./index.html#log" }
+  ]
+}
