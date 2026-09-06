@@ -31,11 +31,32 @@
     --shadow: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
     --nav-h: 58px;
     --g0: #78716c;  /* 천민 */
-    --g1: #0f766e;  /* 평민 */
+    --g1: #1f7f86;  /* 평민 */
     --g2: #1d4ed8;  /* 중인 */
-    --g3: #6d28d9;  /* 양반 */
-    --g4: #b45309;  /* 관료 */
-    --g5: #be123c;  /* 왕가 */
+    --g3: #8b1fc0;  /* 양반 */
+    --g4: #c08a08;  /* 관료 */
+    --g5: #b3122f;  /* 왕가 */
+    /* 계급별 색 (a: 본색, b: 광택) */
+    --r0a: #6f6156; --r0b: #a89684;
+    --r1a: #7d6a4e; --r1b: #bda173;
+    --r2a: #3f7a4e; --r2b: #77c98a;
+    --r3a: #2f8a6a; --r3b: #63d6ab;
+    --r4a: #1f7f86; --r4b: #5ad0dd;
+    --r5a: #2563a8; --r5b: #74b0f2;
+    --r6a: #1d4ed8; --r6b: #7ea7ff;
+    --r7a: #3730c4; --r7b: #9090ff;
+    --r8a: #4c1fd0; --r8b: #a98fff;
+    --r9a: #6d28d9; --r9b: #bc90ff;
+    --r10a: #7c22ce; --r10b: #ca90ff;
+    --r11a: #8b1fc0; --r11b: #d98ef2;
+    --r12a: #a01fae; --r12b: #ea90e6;
+    --r13a: #a8571a; --r13b: #eaa96b;
+    --r14a: #b06510; --r14b: #f2b967;
+    --r15a: #b8780c; --r15b: #f7c85f;
+    --r16a: #c08a08; --r16b: #fbd662;
+    --r17a: #c99a04; --r17b: #ffe066;
+    --r18a: #d4a017; --r18b: #ffea92;
+    --r19a: #b3122f; --r19b: #ffd25e;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -52,11 +73,31 @@
       --warn: #fbbf24;
       --shadow: none;
       --g0: #a8a29e;
-      --g1: #2dd4bf;
+      --g1: #3ecfd8;
       --g2: #60a5fa;
-      --g3: #c084fc;
-      --g4: #fbbf24;
-      --g5: #fb7185;
+      --g3: #e08bf0;
+      --g4: #fcd05a;
+      --g5: #ff6b81;
+      --r0a: #a89684; --r0b: #dccbb6;
+      --r1a: #bda173; --r1b: #e8d2a6;
+      --r2a: #52c98a; --r2b: #a6f2c4;
+      --r3a: #2dd4bf; --r3b: #96f5e6;
+      --r4a: #3ecfd8; --r4b: #a1f2f7;
+      --r5a: #60a5fa; --r5b: #bcd9ff;
+      --r6a: #7aa2ff; --r6b: #c8d8ff;
+      --r7a: #9a8bff; --r7b: #d3caff;
+      --r8a: #b08cff; --r8b: #e2d2ff;
+      --r9a: #c084fc; --r9b: #ebcdff;
+      --r10a: #cf8bff; --r10b: #f2d5ff;
+      --r11a: #e08bf0; --r11b: #f9d2fb;
+      --r12a: #f08ae0; --r12b: #fdd2f5;
+      --r13a: #f0a463; --r13b: #ffd7ac;
+      --r14a: #f5b45f; --r14b: #ffe2b4;
+      --r15a: #f9c258; --r15b: #ffeab1;
+      --r16a: #fcd05a; --r16b: #fff2b6;
+      --r17a: #ffdc5e; --r17b: #fff7bd;
+      --r18a: #ffe680; --r18b: #fffbd3;
+      --r19a: #ff6b81; --r19b: #ffdc8a;
     }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -158,39 +199,80 @@
   /* ---- 계급 ---- */
   .rank-card { display: flex; align-items: center; gap: 14px; padding: 16px 16px 14px; }
   .rank-ic {
-    flex: 0 0 auto; width: 64px; height: 64px; border-radius: 18px;
+    position: relative; overflow: hidden;
+    flex: 0 0 auto; width: 68px; height: 68px; border-radius: 20px;
     display: flex; align-items: center; justify-content: center;
-    background: color-mix(in srgb, currentColor 13%, transparent);
-    border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+    background:
+      radial-gradient(circle at 32% 24%, color-mix(in srgb, currentColor 30%, transparent),
+                                          color-mix(in srgb, currentColor 9%, transparent) 72%);
+    border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+    box-shadow: 0 8px 22px -10px currentColor,
+                inset 0 1px 0 color-mix(in srgb, #fff 50%, transparent);
   }
+  .rank-ic::after {
+    content: ''; position: absolute; inset: -30%;
+    background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,.45) 50%, transparent 58%);
+    transform: translateX(-130%);
+    animation: sheenSweep 6s ease-in-out 1.5s infinite;
+  }
+  .rank-ic svg { position: relative; z-index: 1; }
+  @keyframes sheenSweep { 0% { transform: translateX(-130%); } 22%, 100% { transform: translateX(130%); } }
+  @media (prefers-reduced-motion: reduce) { .rank-ic::after { display: none; } }
+
   .rank-meta { flex: 1 1 auto; min-width: 0; }
-  .rank-grp { font-size: 11px; letter-spacing: .1em; color: var(--muted); }
-  .rank-name { font-size: 24px; font-weight: 800; letter-spacing: -.6px; line-height: 1.2; }
+  .rank-grp {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .08em;
+    padding: 2px 9px; border-radius: 999px; margin-bottom: 3px;
+    color: var(--rank-c); background: color-mix(in srgb, var(--rank-c) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rank-c) 32%, transparent);
+  }
+  .rank-name {
+    font-size: 26px; font-weight: 800; letter-spacing: -.6px; line-height: 1.15;
+    background: linear-gradient(100deg, var(--rank-c), color-mix(in srgb, var(--rank-c) 55%, var(--text)));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
   .rank-day { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .rank-next { padding: 0 16px 14px; }
+  .rank-next .bar > i { background: linear-gradient(90deg, var(--rank-c), color-mix(in srgb, var(--rank-c) 45%, #fff)); }
   .rank-more { padding: 0 16px 16px; }
 
   ul.ranks { list-style: none; margin: 0; padding: 0; }
-  ul.ranks li { display: flex; gap: 12px; align-items: flex-start; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+  ul.ranks li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 13px 16px 13px 13px; border-bottom: 1px solid var(--line);
+    border-left: 3px solid transparent;
+  }
   ul.ranks li:last-child { border-bottom: 0; }
-  ul.ranks li.locked .rk-ic { opacity: .5; }
+  ul.ranks li.got { border-left-color: var(--rc); }
+  ul.ranks li.locked .rk-ic { opacity: .45; filter: grayscale(.55); }
   ul.ranks li.locked .rk-name { color: var(--muted); }
-  ul.ranks li.cur { background: var(--accent-weak); }
+  ul.ranks li.cur {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--rc) 16%, transparent), transparent 78%);
+  }
+  ul.ranks li.cur .rk-name { color: var(--rc); }
   .rk-head {
     padding: 13px 16px 6px; font-size: 11px; font-weight: 700; letter-spacing: .1em;
     color: var(--muted); background: var(--bg); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 7px;
   }
+  .rk-head i { width: 7px; height: 7px; border-radius: 50%; background: var(--rc); display: inline-block; }
   .rk-ic {
-    flex: 0 0 auto; width: 48px; height: 48px; border-radius: 14px;
+    flex: 0 0 auto; width: 50px; height: 50px; border-radius: 15px;
     display: flex; align-items: center; justify-content: center;
-    background: color-mix(in srgb, currentColor 13%, transparent);
+    background:
+      radial-gradient(circle at 32% 24%, color-mix(in srgb, var(--rc) 26%, transparent),
+                                          color-mix(in srgb, var(--rc) 7%, transparent) 72%);
+    border: 1px solid color-mix(in srgb, var(--rc) 28%, transparent);
   }
   .rk-body { flex: 1 1 auto; min-width: 0; }
   .rk-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .rk-name { font-size: 15px; font-weight: 700; }
   .rk-cond { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .rk-now { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--accent-text);
-            border: 1px solid var(--accent); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+  .rk-now {
+    margin-left: auto; font-size: 11px; font-weight: 700; white-space: nowrap;
+    color: #fff; border-radius: 999px; padding: 2px 9px;
+    background: linear-gradient(100deg, var(--rc), color-mix(in srgb, var(--rc) 60%, #fff));
+  }
   .rk-desc { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
   /* ---- 타임라인 ---- */
@@ -716,43 +798,92 @@
     { name: '임금',   d: 3650, g: 5, n: 0, desc: '10년. 스스로를 다스린 사람의 자리입니다. 폐암 사망 위험이 흡연자의 절반으로 줄어듭니다.' }
   ];
 
-  /* --- 계급장 SVG: 신분별 관모(冠帽) + 그룹 내 서열 점 (40x40, currentColor) --- */
+  /* --- 계급장 SVG: 신분별 관모(冠帽). 본체는 그라디언트, 그 위에 광택과 장식 --- */
+  /* 본체 도형(색은 부모에서 상속) */
   var HATS = [
     /* 천민 · 패랭이 */
-    '<path d="M20 12.5L28.5 23.5L11.5 23.5Z" fill="currentColor"/>' +
-    '<rect x="8.5" y="23" width="23" height="3" rx="1.5" fill="currentColor"/>',
-    /* 평민 · 초립 (댕기 띠가 보이는 두 단) */
-    '<path d="M20 8.5L26 18.5L14 18.5Z" fill="currentColor"/>' +
-    '<path d="M12.5 20.5L27.5 20.5L29 23L11 23Z" fill="currentColor"/>' +
-    '<rect x="5.5" y="22.5" width="29" height="3.2" rx="1.6" fill="currentColor"/>',
-    /* 중인 · 탕건 (챙 없는 건) */
-    '<path d="M11.5 23.5Q11.5 13 20 13Q28.5 13 28.5 23.5Z" fill="currentColor"/>' +
-    '<rect x="10" y="23.5" width="20" height="3" rx="1.5" fill="currentColor"/>',
-    /* 양반 · 갓 (높은 통대우 + 넓은 양태) */
-    '<rect x="14.5" y="7.5" width="11" height="13.5" rx="1.5" fill="currentColor"/>' +
-    '<ellipse cx="20" cy="22" rx="14.5" ry="3.2" fill="currentColor"/>',
-    /* 관료 · 사모 (양옆 뿔) */
-    '<path d="M12.5 21.5Q12.5 9.5 20 9.5Q27.5 9.5 27.5 21.5Z" fill="currentColor"/>' +
-    '<rect x="10" y="21.5" width="20" height="3" rx="1.5" fill="currentColor"/>' +
-    '<ellipse cx="6.2" cy="17" rx="5.4" ry="1.7" fill="currentColor"/>' +
-    '<ellipse cx="33.8" cy="17" rx="5.4" ry="1.7" fill="currentColor"/>',
-    /* 왕가 · 면류관 (평천판 + 늘어뜨린 구슬) */
-    '<path d="M13.5 23Q13.5 14 20 14Q26.5 14 26.5 23Z" fill="currentColor"/>' +
-    '<rect x="10.5" y="23" width="19" height="3" rx="1.5" fill="currentColor"/>' +
-    '<rect x="6" y="8" width="28" height="3.2" rx="1.6" fill="currentColor"/>' +
-    '<circle cx="9.5" cy="14.5" r="1.4" fill="currentColor"/><circle cx="9.5" cy="18.5" r="1.4" fill="currentColor"/>' +
-    '<circle cx="30.5" cy="14.5" r="1.4" fill="currentColor"/><circle cx="30.5" cy="18.5" r="1.4" fill="currentColor"/>'
+    '<path d="M20 12.5L28.5 23.5L11.5 23.5Z"/>' +
+    '<rect x="8.5" y="23" width="23" height="3" rx="1.5"/>',
+    /* 평민 · 초립 */
+    '<path d="M20 8.5L26 18.5L14 18.5Z"/>' +
+    '<path d="M12.5 20.5L27.5 20.5L29 23L11 23Z"/>' +
+    '<rect x="5.5" y="22.5" width="29" height="3.2" rx="1.6"/>',
+    /* 중인 · 탕건 */
+    '<path d="M11.5 23.5Q11.5 13 20 13Q28.5 13 28.5 23.5Z"/>' +
+    '<rect x="10" y="23.5" width="20" height="3" rx="1.5"/>',
+    /* 양반 · 갓 */
+    '<rect x="14.5" y="7.5" width="11" height="13.5" rx="1.5"/>' +
+    '<ellipse cx="20" cy="22" rx="14.5" ry="3.2"/>',
+    /* 관료 · 사모 */
+    '<path d="M12.5 21.5Q12.5 9.5 20 9.5Q27.5 9.5 27.5 21.5Z"/>' +
+    '<rect x="10" y="21.5" width="20" height="3" rx="1.5"/>' +
+    '<ellipse cx="6.2" cy="17" rx="5.4" ry="1.7"/>' +
+    '<ellipse cx="33.8" cy="17" rx="5.4" ry="1.7"/>',
+    /* 왕가 · 면류관 */
+    '<path d="M13.5 23Q13.5 14 20 14Q26.5 14 26.5 23Z"/>' +
+    '<rect x="10.5" y="23" width="19" height="3" rx="1.5"/>' +
+    '<rect x="6" y="8" width="28" height="3.2" rx="1.6"/>'
   ];
 
-  function rankIcon(r, size) {
-    var body = HATS[r.g] || HATS[0];
+  /* 신분별 장식: 짚 결·댕기·옥관자·갓끈·금테·구슬 */
+  var ORNAMENTS = [
+    '<path d="M17 21.5L20.5 15M23 21.5L20.8 16.5" stroke="#000" stroke-opacity=".22" stroke-width="1" ' +
+    'stroke-linecap="round" fill="none"/>',
+    '<rect x="12.8" y="18.5" width="14.4" height="2.1" rx="1" fill="#fff" fill-opacity=".7"/>' +
+    '<circle cx="20" cy="19.55" r="1.15"/>',
+    '<circle cx="26.4" cy="19.4" r="2.1" fill="#fff" fill-opacity=".28"/>' +
+    '<circle cx="26.4" cy="19.4" r="1.15" fill="#6ee7d7"/>',
+    '<rect x="15" y="9.5" width="10" height="1.6" rx=".8" fill="#fff" fill-opacity=".5"/>' +
+    '<circle cx="5.4" cy="22" r="1.8"/><circle cx="34.6" cy="22" r="1.8"/>' +
+    '<circle cx="5.4" cy="21.4" r=".7" fill="#fff" fill-opacity=".6"/>' +
+    '<circle cx="34.6" cy="21.4" r=".7" fill="#fff" fill-opacity=".6"/>',
+    '<rect x="10.5" y="21.9" width="19" height="1.3" rx=".65" fill="#fff" fill-opacity=".6"/>' +
+    '<path d="M20 13.4L22.1 16L20 18.6L17.9 16Z" fill="#fff" fill-opacity=".75"/>',
+    '<rect x="6" y="8" width="28" height="3.2" rx="1.6" fill="#f2c464"/>' +
+    '<path d="M9.5 11.2V13.2M30.5 11.2V13.2" stroke="#f2c464" stroke-width="1"/>' +
+    '<circle cx="9.5" cy="14.6" r="1.6" fill="#f2c464"/><circle cx="9.5" cy="18.6" r="1.6" fill="#f2c464"/>' +
+    '<circle cx="30.5" cy="14.6" r="1.6" fill="#f2c464"/><circle cx="30.5" cy="18.6" r="1.6" fill="#f2c464"/>' +
+    '<circle cx="20" cy="18.6" r="2.4" fill="#f2c464"/>' +
+    '<circle cx="19.4" cy="18" r=".9" fill="#fff" fill-opacity=".7"/>' +
+    '<path d="M20 2.2L21 5L23.8 6L21 7L20 9.8L19 7L16.2 6L19 5Z" fill="#f2c464"/>'
+  ];
+
+  /* 계급별 그라디언트를 문서에 한 번만 정의 */
+  function buildRankDefs() {
+    var d = '';
+    for (var i = 0; i < RANKS.length; i++) {
+      d += '<linearGradient id="rg' + i + '" gradientUnits="userSpaceOnUse" x1="9" y1="5" x2="31" y2="30">' +
+           '<stop offset="0" style="stop-color:var(--r' + i + 'b)"/>' +
+           '<stop offset=".5" style="stop-color:var(--r' + i + 'a)"/>' +
+           '<stop offset="1" style="stop-color:color-mix(in srgb, var(--r' + i + 'a) 70%, #000)"/>' +
+           '</linearGradient>';
+    }
+    d += '<linearGradient id="rgGloss" gradientUnits="userSpaceOnUse" x1="0" y1="5" x2="0" y2="26">' +
+         '<stop offset="0" stop-color="#fff" stop-opacity=".5"/>' +
+         '<stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>';
+    document.body.insertAdjacentHTML('afterbegin',
+      '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' + d + '</defs></svg>');
+  }
+
+  function rankIcon(r, size, idx) {
+    var hat = HATS[r.g] || HATS[0];
+    var body =
+      '<g fill="url(#rg' + idx + ')">' + hat + '</g>' +
+      '<g fill="url(#rgGloss)">' + hat + '</g>' +
+      (ORNAMENTS[r.g] || '');
+
     if (r.n > 0) {
-      var gap = 5, x0 = 20 - (r.n - 1) * gap / 2;
+      var gap = 5.4, x0 = 20 - (r.n - 1) * gap / 2;
       for (var i = 0; i < r.n; i++) {
-        body += '<circle cx="' + (x0 + i * gap).toFixed(2) + '" cy="31.5" r="1.75" fill="currentColor"/>';
+        var x = x0 + i * gap;
+        body += '<path d="M' + x + ' 28.7L' + (x + 2.1) + ' 31.3L' + x + ' 33.9L' + (x - 2.1) + ' 31.3Z" ' +
+                'fill="url(#rg' + idx + ')"/>' +
+                '<path d="M' + x + ' 29.5L' + (x + 1.1) + ' 31L' + x + ' 31.5L' + (x - 1.1) + ' 31Z" ' +
+                'fill="#fff" fill-opacity=".55"/>';
       }
     }
-    return '<svg viewBox="0 0 40 40" width="' + size + '" height="' + size + '" aria-hidden="true">' + body + '</svg>';
+    return '<svg viewBox="0 0 40 40" width="' + size + '" height="' + size + '" aria-hidden="true" ' +
+           'fill="currentColor" style="color:var(--r' + idx + 'a)">' + body + '</svg>';
   }
 
   function rankIndex() {
@@ -772,7 +903,7 @@
   function renderRank() {
     var i = rankIndex(), r = RANKS[i], next = RANKS[i + 1];
     var head =
-      '<div class="rank-ic" style="color:var(--g' + r.g + ')">' + rankIcon(r, 48) + '</div>' +
+      '<div class="rank-ic" style="color:var(--r' + i + 'a)">' + rankIcon(r, 50, i) + '</div>' +
       '<div class="rank-meta">' +
       '<div class="rank-grp">' + RANK_GROUPS[r.g] + ' · ' + (i + 1) + '품계 / ' + RANKS.length + '</div>' +
       '<div class="rank-name">' + r.name + '</div>' +
@@ -792,6 +923,8 @@
            '<div class="bar"><i style="width:' + p.toFixed(1) + '%"></i></div>';
     }
 
+    $('rankCard').style.setProperty('--rank-c', 'var(--r' + i + 'a)');
+    $('page-rank').style.setProperty('--rank-c', 'var(--r' + i + 'a)');
     $('rankBox').innerHTML = head;
     $('rankNext').innerHTML = nx;
     $('rankBoxBig').innerHTML = head;
@@ -803,9 +936,13 @@
     var cur = rankIndex(), html = '', g = -1;
     for (var i = 0; i < RANKS.length; i++) {
       var r = RANKS[i], got = S.startedAt && elapsed() >= r.d * DAY;
-      if (r.g !== g) { g = r.g; html += '<li class="rk-head">' + RANK_GROUPS[g] + '</li>'; }
-      html += '<li class="' + (got ? '' : 'locked ') + (i === cur && S.startedAt ? 'cur' : '') + '">' +
-        '<div class="rk-ic" style="color:var(--g' + r.g + ')">' + rankIcon(r, 36) + '</div>' +
+      if (r.g !== g) {
+        g = r.g;
+        html += '<li class="rk-head" style="--rc:var(--g' + g + ')"><i></i>' + RANK_GROUPS[g] + '</li>';
+      }
+      html += '<li class="' + (got ? 'got ' : 'locked ') + (i === cur && S.startedAt ? 'cur' : '') +
+        '" style="--rc:var(--r' + i + 'a)">' +
+        '<div class="rk-ic">' + rankIcon(r, 38, i) + '</div>' +
         '<div class="rk-body"><div class="rk-top"><span class="rk-name">' + r.name + '</span>' +
         '<span class="rk-cond">' + rankCond(r) + '</span>' +
         (i === cur && S.startedAt ? '<span class="rk-now">현재 계급</span>' : '') + '</div>' +
@@ -1257,6 +1394,7 @@
 
   /* ================= 시작 ================= */
   var hash = (location.hash || '').replace('#', '');
+  buildRankDefs();
   renderSettings();
   renderAll();
   if (['home', 'rank', 'health', 'log', 'set'].indexOf(hash) >= 0) showTab(hash);
