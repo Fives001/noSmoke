@@ -30,11 +30,12 @@
     --warn: #b45309;
     --shadow: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
     --nav-h: 58px;
-    --g0: #0f766e;  /* 병사 */
-    --g1: #1d4ed8;  /* 부사관 */
-    --g2: #6d28d9;  /* 위관 */
-    --g3: #b45309;  /* 영관 */
-    --g4: #a16207;  /* 장성 */
+    --g0: #78716c;  /* 천민 */
+    --g1: #0f766e;  /* 평민 */
+    --g2: #1d4ed8;  /* 중인 */
+    --g3: #6d28d9;  /* 양반 */
+    --g4: #b45309;  /* 관료 */
+    --g5: #be123c;  /* 왕가 */
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -50,11 +51,12 @@
       --danger-weak: #3a2320;
       --warn: #fbbf24;
       --shadow: none;
-      --g0: #2dd4bf;
-      --g1: #60a5fa;
-      --g2: #c084fc;
-      --g3: #fbbf24;
-      --g4: #facc15;
+      --g0: #a8a29e;
+      --g1: #2dd4bf;
+      --g2: #60a5fa;
+      --g3: #c084fc;
+      --g4: #fbbf24;
+      --g5: #fb7185;
     }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -385,8 +387,8 @@
     <div class="card">
       <div class="card-body">
         <h2>계급표 <span class="sub" id="rankCount"></span></h2>
-        <p class="hint" style="margin-top:0">금연 기간에 따라 계급이 올라갑니다. 초반에는 1~2주마다,
-          뒤로 갈수록 넓은 간격으로 진급합니다. 흡연을 기록하고 다시 시작하면 계급도 훈련병부터 시작합니다.</p>
+        <p class="hint" style="margin-top:0">금연 기간에 따라 신분이 올라갑니다. 초반에는 1~2주마다,
+          뒤로 갈수록 넓은 간격으로 승급합니다. 흡연을 기록하고 다시 시작하면 계급도 노비부터 다시 시작합니다.</p>
       </div>
       <ul class="ranks" id="rankList"></ul>
     </div>
@@ -531,7 +533,7 @@
     <span>홈</span>
   </button>
   <button role="tab" data-tab="rank" aria-selected="false">
-    <svg viewBox="0 0 24 24"><path d="M5 12.5 12 7l7 5.5"/><path d="M5 17.5 12 12l7 5.5"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M8.5 14.5V10a3.5 3.5 0 0 1 7 0v4.5"/><path d="M3.5 15h17"/></svg>
     <span>계급</span>
   </button>
   <button role="tab" data-tab="health" aria-selected="false">
@@ -690,79 +692,65 @@
 
 
   /* ================= 계급 ================= */
-  var RANK_GROUPS = ['병사', '부사관', '위관', '영관', '장성'];
+  var RANK_GROUPS = ['천민', '평민', '중인', '양반', '관료', '왕가'];
   var RANKS = [
-    { name: '훈련병', d: 0,    g: 0, ic: 'none', n: 0, desc: '금연을 시작한 순간입니다. 담배·라이터·재떨이를 눈앞에서 치우는 것이 첫 임무입니다.' },
-    { name: '이등병', d: 1,    g: 0, ic: 'bar',  n: 1, desc: '하루를 넘겼습니다. 혈중 일산화탄소가 정상으로 돌아오고 심장마비 위험이 낮아지기 시작합니다.' },
-    { name: '일병',   d: 3,    g: 0, ic: 'bar',  n: 2, desc: '금단 증상이 가장 심한 구간을 지납니다. 여기만 넘기면 몸이 눈에 띄게 편해집니다.' },
-    { name: '상병',   d: 7,    g: 0, ic: 'bar',  n: 3, desc: '일주일 달성. 니코틴이 몸에서 거의 빠져나갔습니다. 이제부터는 습관과의 싸움입니다.' },
-    { name: '병장',   d: 14,   g: 0, ic: 'bar',  n: 4, desc: '2주 차. 혈액순환이 좋아지고 폐 기능이 올라옵니다. 계단이 덜 힘들어집니다.' },
-    { name: '하사',   d: 28,   g: 1, ic: 'chev', n: 1, desc: '한 달 달성. 기침과 숨참이 줄고 아침이 개운해지는 시기입니다.' },
-    { name: '중사',   d: 42,   g: 1, ic: 'chev', n: 2, desc: '6주 차. 충동이 찾아오는 상황(술자리·스트레스)이 뚜렷해집니다. 대처법을 미리 정해 두세요.' },
-    { name: '상사',   d: 56,   g: 1, ic: 'chev', n: 3, desc: '8주 차. 담배 없는 하루가 기본값이 되어 갑니다.' },
-    { name: '원사',   d: 70,   g: 1, ic: 'chev', n: 4, desc: '10주 차. 부사관의 마지막 계급. 절약한 금액이 눈에 보이기 시작합니다.' },
-    { name: '소위',   d: 84,   g: 2, ic: 'dia',  n: 1, desc: '3개월. 폐 기능이 최대 30%까지 향상되는 구간에 들어섭니다.' },
-    { name: '중위',   d: 112,  g: 2, ic: 'dia',  n: 2, desc: '4개월. 후각과 미각이 자리를 잡아 음식 맛이 달라집니다.' },
-    { name: '대위',   d: 140,  g: 2, ic: 'dia',  n: 3, desc: '5개월. 방심이 가장 위험한 시기입니다. \'한 대쯤\'이 재흡연의 시작입니다.' },
-    { name: '소령',   d: 180,  g: 3, ic: 'flo',  n: 1, desc: '6개월. 반년을 넘겼습니다. 절약한 돈으로 스스로에게 보상을 주기 좋은 시점입니다.' },
-    { name: '중령',   d: 270,  g: 3, ic: 'flo',  n: 2, desc: '9개월. 폐의 섬모가 회복되어 감염에 강해집니다.' },
-    { name: '대령',   d: 365,  g: 3, ic: 'flo',  n: 3, desc: '1년. 관상동맥 질환 위험이 흡연자의 절반으로 줄어듭니다.' },
-    { name: '준장',   d: 548,  g: 4, ic: 'star', n: 1, desc: '1년 6개월. 흡연자였다는 사실이 잘 떠오르지 않는 단계입니다.' },
-    { name: '소장',   d: 730,  g: 4, ic: 'star', n: 2, desc: '2년. 심혈관 지표가 비흡연자에 가까워집니다.' },
-    { name: '중장',   d: 1095, g: 4, ic: 'star', n: 3, desc: '3년. 금연이 의지가 아니라 생활이 되었습니다.' },
-    { name: '대장',   d: 1825, g: 4, ic: 'star', n: 4, desc: '5년. 뇌졸중 위험이 비흡연자 수준에 가까워집니다.' },
-    { name: '원수',   d: 3650, g: 4, ic: 'star', n: 5, desc: '10년. 폐암 사망 위험이 흡연자의 절반. 명예의 계급입니다.' }
+    { name: '노비',   d: 0,    g: 0, n: 0, desc: '담배에 매여 살던 신분입니다. 오늘 그 사슬을 끊기로 했습니다. 담배·라이터·재떨이를 눈앞에서 치우는 것이 첫 일입니다.' },
+    { name: '면천',   d: 1,    g: 0, n: 1, desc: '천민의 굴레를 벗었습니다(免賤). 하루 만에 혈중 일산화탄소가 정상으로 돌아오고 심장마비 위험이 낮아지기 시작합니다.' },
+    { name: '상민',   d: 3,    g: 1, n: 0, desc: '이제 남이 아닌 내 하루를 삽니다. 금단 증상이 가장 심한 구간을 지나는 중이니, 사흘만 버티면 몸이 달라집니다.' },
+    { name: '양인',   d: 7,    g: 1, n: 1, desc: '일주일. 니코틴이 몸에서 거의 빠져나갔습니다. 이제 남은 상대는 니코틴이 아니라 습관이라는 관성입니다.' },
+    { name: '부농',   d: 14,   g: 1, n: 2, desc: '2주 차. 곳간에 곡식이 쌓이듯 통장에 돈이 쌓입니다. 혈액순환이 좋아져 계단이 덜 힘들어집니다.' },
+    { name: '서리',   d: 28,   g: 2, n: 0, desc: '한 달 달성. 관아의 문서를 맡은 아전처럼, 이제 스스로를 관리하기 시작합니다. 기침과 숨참이 줄어듭니다.' },
+    { name: '향리',   d: 42,   g: 2, n: 1, desc: '6주 차. 고을을 살피듯 내 하루를 살필 때입니다. 충동이 찾아오는 자리(술자리·스트레스)를 미리 정리해 두세요.' },
+    { name: '역관',   d: 56,   g: 2, n: 2, desc: '8주 차. 담배 없는 하루가 특별한 일이 아니라 기본값이 되었습니다.' },
+    { name: '의원',   d: 70,   g: 2, n: 3, desc: '10주 차. 스스로 몸을 돌보는 사람이 되었습니다. 중인의 마지막 자리입니다.' },
+    { name: '유생',   d: 84,   g: 3, n: 0, desc: '3개월. 양반의 문턱을 넘었습니다. 폐 기능이 최대 30%까지 향상되는 구간입니다.' },
+    { name: '생원',   d: 112,  g: 3, n: 1, desc: '4개월. 소과에 급제한 신분입니다. 후각과 미각이 자리를 잡아 음식 맛이 달라집니다.' },
+    { name: '진사',   d: 140,  g: 3, n: 2, desc: '5개월. 방심이 가장 위험한 때입니다. \'한 대쯤\'이 재흡연의 시작입니다.' },
+    { name: '현감',   d: 180,  g: 3, n: 3, desc: '6개월. 한 고을을 맡았습니다. 반년을 넘겼으니 절약한 돈으로 스스로에게 상을 내리기 좋은 때입니다.' },
+    { name: '군수',   d: 270,  g: 4, n: 0, desc: '9개월. 벼슬길에 올랐습니다. 폐의 섬모가 회복되어 감염에 강해집니다.' },
+    { name: '부사',   d: 365,  g: 4, n: 1, desc: '1년. 관상동맥 질환 위험이 흡연자의 절반으로 줄어듭니다. 첫 해를 온전히 지켰습니다.' },
+    { name: '목사',   d: 548,  g: 4, n: 2, desc: '1년 6개월. 큰 고을을 다스리는 목사(牧使)입니다. 흡연자였다는 사실이 잘 떠오르지 않습니다.' },
+    { name: '관찰사', d: 730,  g: 4, n: 3, desc: '2년. 한 도를 살피는 자리입니다. 심혈관 지표가 비흡연자에 가까워집니다.' },
+    { name: '판서',   d: 1095, g: 4, n: 4, desc: '3년. 육조의 으뜸입니다. 금연이 의지가 아니라 생활이 되었습니다.' },
+    { name: '정승',   d: 1825, g: 4, n: 5, desc: '5년. 일인지하 만인지상. 뇌졸중 위험이 비흡연자 수준에 가까워집니다.' },
+    { name: '임금',   d: 3650, g: 5, n: 0, desc: '10년. 스스로를 다스린 사람의 자리입니다. 폐암 사망 위험이 흡연자의 절반으로 줄어듭니다.' }
   ];
 
-  /* --- 계급장 SVG (40x40 기준, currentColor 사용) --- */
-  function svgRow(n, unit, gap, draw) {
-    var w = n * unit + (n - 1) * gap;
-    var k = w > 37 ? 37 / w : 1, out = '';
-    for (var i = 0; i < n; i++) out += draw(-w / 2 + unit / 2 + i * (unit + gap), 0);
-    return '<g transform="translate(20 20) scale(' + k.toFixed(3) + ')">' + out + '</g>';
-  }
-  function starPath(cx, cy, r) {
-    var p = [];
-    for (var i = 0; i < 10; i++) {
-      var a = (-90 + i * 36) * Math.PI / 180, rr = i % 2 ? r * .44 : r;
-      p.push((cx + rr * Math.cos(a)).toFixed(2) + ' ' + (cy + rr * Math.sin(a)).toFixed(2));
-    }
-    return '<path d="M' + p.join('L') + 'Z" fill="currentColor"/>';
-  }
+  /* --- 계급장 SVG: 신분별 관모(冠帽) + 그룹 내 서열 점 (40x40, currentColor) --- */
+  var HATS = [
+    /* 천민 · 패랭이 */
+    '<path d="M20 12.5L28.5 23.5L11.5 23.5Z" fill="currentColor"/>' +
+    '<rect x="8.5" y="23" width="23" height="3" rx="1.5" fill="currentColor"/>',
+    /* 평민 · 초립 (댕기 띠가 보이는 두 단) */
+    '<path d="M20 8.5L26 18.5L14 18.5Z" fill="currentColor"/>' +
+    '<path d="M12.5 20.5L27.5 20.5L29 23L11 23Z" fill="currentColor"/>' +
+    '<rect x="5.5" y="22.5" width="29" height="3.2" rx="1.6" fill="currentColor"/>',
+    /* 중인 · 탕건 (챙 없는 건) */
+    '<path d="M11.5 23.5Q11.5 13 20 13Q28.5 13 28.5 23.5Z" fill="currentColor"/>' +
+    '<rect x="10" y="23.5" width="20" height="3" rx="1.5" fill="currentColor"/>',
+    /* 양반 · 갓 (높은 통대우 + 넓은 양태) */
+    '<rect x="14.5" y="7.5" width="11" height="13.5" rx="1.5" fill="currentColor"/>' +
+    '<ellipse cx="20" cy="22" rx="14.5" ry="3.2" fill="currentColor"/>',
+    /* 관료 · 사모 (양옆 뿔) */
+    '<path d="M12.5 21.5Q12.5 9.5 20 9.5Q27.5 9.5 27.5 21.5Z" fill="currentColor"/>' +
+    '<rect x="10" y="21.5" width="20" height="3" rx="1.5" fill="currentColor"/>' +
+    '<ellipse cx="6.2" cy="17" rx="5.4" ry="1.7" fill="currentColor"/>' +
+    '<ellipse cx="33.8" cy="17" rx="5.4" ry="1.7" fill="currentColor"/>',
+    /* 왕가 · 면류관 (평천판 + 늘어뜨린 구슬) */
+    '<path d="M13.5 23Q13.5 14 20 14Q26.5 14 26.5 23Z" fill="currentColor"/>' +
+    '<rect x="10.5" y="23" width="19" height="3" rx="1.5" fill="currentColor"/>' +
+    '<rect x="6" y="8" width="28" height="3.2" rx="1.6" fill="currentColor"/>' +
+    '<circle cx="9.5" cy="14.5" r="1.4" fill="currentColor"/><circle cx="9.5" cy="18.5" r="1.4" fill="currentColor"/>' +
+    '<circle cx="30.5" cy="14.5" r="1.4" fill="currentColor"/><circle cx="30.5" cy="18.5" r="1.4" fill="currentColor"/>'
+  ];
+
   function rankIcon(r, size) {
-    var body = '';
-    if (r.ic === 'bar') {
-      var h = 5, gap = 2.6, tot = r.n * h + (r.n - 1) * gap, y = (40 - tot) / 2;
+    var body = HATS[r.g] || HATS[0];
+    if (r.n > 0) {
+      var gap = 5, x0 = 20 - (r.n - 1) * gap / 2;
       for (var i = 0; i < r.n; i++) {
-        body += '<rect x="8" y="' + (y + i * (h + gap)).toFixed(2) + '" width="24" height="' + h +
-                '" rx="2.5" fill="currentColor"/>';
+        body += '<circle cx="' + (x0 + i * gap).toFixed(2) + '" cy="31.5" r="1.75" fill="currentColor"/>';
       }
-    } else if (r.ic === 'chev') {
-      var pitch = 7.4, tot2 = (r.n - 1) * pitch + 11, y0 = (40 - tot2) / 2 + 1;
-      for (var j = 0; j < r.n; j++) {
-        var t = y0 + j * pitch;
-        body += '<path d="M7 ' + (t + 8).toFixed(2) + 'L20 ' + t.toFixed(2) + 'L33 ' + (t + 8).toFixed(2) +
-                'L33 ' + (t + 12.5).toFixed(2) + 'L20 ' + (t + 4.5).toFixed(2) + 'L7 ' + (t + 12.5).toFixed(2) +
-                'Z" fill="currentColor"/>';
-      }
-    } else if (r.ic === 'dia') {
-      body = svgRow(r.n, 11, 2.5, function (cx) {
-        return '<path d="M' + cx + ' -7L' + (cx + 5.5) + ' 0L' + cx + ' 7L' + (cx - 5.5) + ' 0Z" fill="currentColor"/>';
-      });
-    } else if (r.ic === 'flo') {
-      body = svgRow(r.n, 14, 3.2, function (cx) {
-        var g = '';
-        for (var i = 0; i < 8; i++) {
-          g += '<ellipse cx="0" cy="-4.4" rx="2.1" ry="4.4" transform="rotate(' + (i * 45) + ')" fill="currentColor"/>';
-        }
-        return '<g transform="translate(' + cx + ' 0)">' + g +
-               '<circle r="2.2" fill="currentColor" opacity=".45"/></g>';
-      });
-    } else if (r.ic === 'star') {
-      body = svgRow(r.n, 11.6, 1.2, function (cx) { return starPath(cx, 0, 5.8); });
-    } else {
-      body = '<circle cx="20" cy="20" r="8" fill="none" stroke="currentColor" stroke-width="2.2" ' +
-             'stroke-dasharray="3 3.4"/>';
     }
     return '<svg viewBox="0 0 40 40" width="' + size + '" height="' + size + '" aria-hidden="true">' + body + '</svg>';
   }
@@ -786,16 +774,16 @@
     var head =
       '<div class="rank-ic" style="color:var(--g' + r.g + ')">' + rankIcon(r, 48) + '</div>' +
       '<div class="rank-meta">' +
-      '<div class="rank-grp">' + RANK_GROUPS[r.g] + ' · ' + (i + 1) + '계급 / ' + RANKS.length + '</div>' +
+      '<div class="rank-grp">' + RANK_GROUPS[r.g] + ' · ' + (i + 1) + '품계 / ' + RANKS.length + '</div>' +
       '<div class="rank-name">' + r.name + '</div>' +
       '<div class="rank-day">' + (S.startedAt ? '금연 ' + Math.floor(elapsed() / DAY) + '일째' : '금연을 시작하면 진급이 시작됩니다') +
       '</div></div>';
 
     var nx;
     if (!S.startedAt) {
-      nx = '<p class="hint" style="margin:0">첫 진급은 24시간 뒤 <strong>이등병</strong>입니다.</p>';
+      nx = '<p class="hint" style="margin:0">첫 승급은 24시간 뒤 <strong>' + RANKS[1].name + '</strong>입니다.</p>';
     } else if (!next) {
-      nx = '<p class="hint" style="margin:0">최고 계급입니다. 더 오를 곳이 없습니다.</p>';
+      nx = '<p class="hint" style="margin:0">가장 높은 자리입니다. 더 오를 곳이 없습니다.</p>';
     } else {
       var e = elapsed(), from = r.d * DAY, to = next.d * DAY;
       var p = Math.max(1, (e - from) / (to - from) * 100);
@@ -834,9 +822,9 @@
     var r = RANKS[i];
     S.rankSeen = i; save();
     buzz([30, 60, 30]);
-    toast('진급! ' + RANK_GROUPS[r.g] + ' ' + r.name);
+    toast('신분 상승! ' + RANK_GROUPS[r.g] + ' ' + r.name);
     if (S.notify && 'Notification' in window && Notification.permission === 'granted') {
-      try { new Notification('진급! ' + r.name, { body: r.desc, tag: 'rank-' + i }); } catch (err) {}
+      try { new Notification('신분 상승! ' + r.name, { body: r.desc, tag: 'rank-' + i }); } catch (err) {}
     }
   }
 
