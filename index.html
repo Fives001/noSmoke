@@ -16,7 +16,11 @@
 <link rel="icon" href="icons/icon-192.png">
 <title>금연 - noSmoke</title>
 <style>
+  /* ================= 테마 =================
+     밝게(:root) / 어둡게 / 컬러풀 3종.
+     data-theme 속성이 없으면 시스템 설정(prefers-color-scheme)을 따른다. */
   :root {
+    color-scheme: light;
     --bg: #f5f6f8;
     --panel: #ffffff;
     --text: #1c1f23;
@@ -58,8 +62,11 @@
     --r18a: #d4a017; --r18b: #ffea92;
     --r19a: #b3122f; --r19b: #ffd25e;
   }
+
+  /* --- 어둡게 --- */
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]):not([data-theme="colorful"]) {
+      color-scheme: dark;
       --bg: #14161a;
       --panel: #1d2026;
       --text: #e8eaed;
@@ -100,6 +107,104 @@
       --r19a: #ff6b81; --r19b: #ffdc8a;
     }
   }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #14161a;
+    --panel: #1d2026;
+    --text: #e8eaed;
+    --muted: #9aa1ab;
+    --line: #2e333b;
+    --accent: #2dd4bf;
+    --accent-weak: #10302e;
+    --accent-text: #5eead4;
+    --danger: #ff8a80;
+    --danger-weak: #3a2320;
+    --warn: #fbbf24;
+    --shadow: none;
+    --g0: #a8a29e;
+    --g1: #3ecfd8;
+    --g2: #60a5fa;
+    --g3: #e08bf0;
+    --g4: #fcd05a;
+    --g5: #ff6b81;
+    --r0a: #a89684; --r0b: #dccbb6;
+    --r1a: #bda173; --r1b: #e8d2a6;
+    --r2a: #52c98a; --r2b: #a6f2c4;
+    --r3a: #2dd4bf; --r3b: #96f5e6;
+    --r4a: #3ecfd8; --r4b: #a1f2f7;
+    --r5a: #60a5fa; --r5b: #bcd9ff;
+    --r6a: #7aa2ff; --r6b: #c8d8ff;
+    --r7a: #9a8bff; --r7b: #d3caff;
+    --r8a: #b08cff; --r8b: #e2d2ff;
+    --r9a: #c084fc; --r9b: #ebcdff;
+    --r10a: #cf8bff; --r10b: #f2d5ff;
+    --r11a: #e08bf0; --r11b: #f9d2fb;
+    --r12a: #f08ae0; --r12b: #fdd2f5;
+    --r13a: #f0a463; --r13b: #ffd7ac;
+    --r14a: #f5b45f; --r14b: #ffe2b4;
+    --r15a: #f9c258; --r15b: #ffeab1;
+    --r16a: #fcd05a; --r16b: #fff2b6;
+    --r17a: #ffdc5e; --r17b: #fff7bd;
+    --r18a: #ffe680; --r18b: #fffbd3;
+    --r19a: #ff6b81; --r19b: #ffdc8a;
+  }
+
+  /* --- 컬러풀: 짙은 보라 바탕에 채도 높은 색 --- */
+  :root[data-theme="colorful"] {
+    color-scheme: dark;
+    --bg: #1a0f36;
+    --panel: #261848;
+    --text: #f6efff;
+    --muted: #b6a3dc;
+    --line: #3e2a66;
+    --accent: #ff5fa2;
+    --accent-weak: #3d1636;
+    --accent-text: #ff9ac6;
+    --danger: #ff6b6b;
+    --danger-weak: #4a1b2c;
+    --warn: #ffc857;
+    --shadow: 0 4px 18px -8px rgba(255, 95, 162, .45);
+    --g0: #f0c0a4;
+    --g1: #26d9e6;
+    --g2: #5b7cff;
+    --g3: #d43ff0;
+    --g4: #ffc31f;
+    --g5: #ff4d6d;
+    --r0a: #c88a6a; --r0b: #f0c0a4;
+    --r1a: #e0a24a; --r1b: #ffd79a;
+    --r2a: #58d977; --r2b: #b0ffc4;
+    --r3a: #2ee6b0; --r3b: #9dffe2;
+    --r4a: #26d9e6; --r4b: #a0f6ff;
+    --r5a: #45a6ff; --r5b: #bbdcff;
+    --r6a: #5b7cff; --r6b: #c2ceff;
+    --r7a: #8560ff; --r7b: #d0c0ff;
+    --r8a: #a24dff; --r8b: #ddbcff;
+    --r9a: #bf3fff; --r9b: #ecb8ff;
+    --r10a: #d43ff0; --r10b: #f7b9ff;
+    --r11a: #ef44dd; --r11b: #ffbcf5;
+    --r12a: #ff4fb0; --r12b: #ffbde0;
+    --r13a: #ff7a5c; --r13b: #ffc9ba;
+    --r14a: #ff9440; --r14b: #ffd6a8;
+    --r15a: #ffab2e; --r15b: #ffe0a5;
+    --r16a: #ffc31f; --r16b: #ffeaa0;
+    --r17a: #ffd93d; --r17b: #fff3b0;
+    --r18a: #ffe95c; --r18b: #fff9c4;
+    --r19a: #ff4d6d; --r19b: #ffd93d;
+  }
+  /* 그라디언트는 루트에 칠한다. body에 두면 스크롤 시 배경이 끊긴다. */
+  :root[data-theme="colorful"] {
+    background:
+      radial-gradient(1100px 620px at 8% -8%, rgba(255, 95, 162, .20), transparent 62%),
+      radial-gradient(900px 560px at 96% 4%, rgba(38, 217, 230, .16), transparent 60%),
+      linear-gradient(168deg, #1d1040 0%, #170f33 46%, #2a1038 100%);
+    background-attachment: fixed;
+  }
+  :root[data-theme="colorful"] body { background: transparent; }
+  :root[data-theme="colorful"] .card {
+    background: color-mix(in srgb, var(--panel) 82%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
@@ -336,6 +441,25 @@
   .switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; }
   .switch .t { font-size: 14px; }
   .switch .d { font-size: 12px; color: var(--muted); }
+
+  .theme-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .theme-opt {
+    background: var(--panel); color: var(--text);
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 9px 4px 8px; min-height: 0; font-size: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+  }
+  .theme-opt[aria-pressed="true"] {
+    border-color: var(--accent); color: var(--accent-text); font-weight: 700;
+    box-shadow: 0 0 0 2px var(--accent-weak);
+  }
+  .theme-sw {
+    display: flex; width: 100%; height: 26px; border-radius: 7px;
+    overflow: hidden; border: 1px solid var(--line);
+  }
+  .theme-sw i { flex: 1 1 0; }
+  @media (max-width: 360px) { .theme-row { grid-template-columns: repeat(2, 1fr); } }
+
 
   /* ---- 하단 탭 ---- */
   nav.tabs {
@@ -602,6 +726,14 @@
 
     <div class="card">
       <div class="card-body">
+        <h2>화면 테마</h2>
+        <div class="theme-row" id="themeRow"></div>
+        <p class="hint">시스템은 기기의 밝게/어둡게 설정을 따라갑니다.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
         <h2>데이터</h2>
         <p class="hint" style="margin-top:0">기록은 이 기기의 브라우저에만 저장됩니다. 기기를 바꾸기 전에 내보내세요.</p>
         <div class="btn-row" style="margin-bottom:8px">
@@ -665,6 +797,7 @@
     goalAmount: 0,
     bestStreak: 0,        // 최고 연속 금연 시간(ms)
     notify: false,
+    theme: 'auto',       // auto | light | dark | colorful
     seenMilestones: [],   // 알림을 이미 보낸 단계 id
     rankSeen: null,       // 마지막으로 알린 계급 index
     logs: []              // {t, type:'resist'|'smoke'|'note'|'restart', memo, count}
@@ -713,6 +846,57 @@
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
   }
   function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+
+  /* ================= 테마 ================= */
+  var THEMES = [
+    { id: 'auto',     t: '시스템', sw: ['#f5f6f8', '#14161a', '#2dd4bf'] },
+    { id: 'light',    t: '밝게',   sw: ['#ffffff', '#e2e5ea', '#0f766e'] },
+    { id: 'dark',     t: '어둡게', sw: ['#14161a', '#1d2026', '#2dd4bf'] },
+    { id: 'colorful', t: '컬러풀', sw: ['#1a0f36', '#ff5fa2', '#ffc31f'] }
+  ];
+  function themeId() {
+    for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === S.theme) return S.theme;
+    return 'auto';
+  }
+  function applyTheme() {
+    var id = themeId(), root = document.documentElement;
+    if (id === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', id);
+    syncThemeColor();
+  }
+  /* PWA 상태바 색을 현재 배경색에 맞춘다 (meta가 없는 환경에서는 아무 일도 하지 않음) */
+  function syncThemeColor() {
+    var list = document.querySelectorAll('meta[name="theme-color"]');
+    if (!list.length) return;
+    for (var i = list.length - 1; i > 0; i--) list[i].parentNode.removeChild(list[i]);
+    var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    list[0].removeAttribute('media');
+    if (bg) list[0].setAttribute('content', bg);
+  }
+  function renderTheme() {
+    var cur = themeId(), html = '';
+    for (var i = 0; i < THEMES.length; i++) {
+      var th = THEMES[i], sw = '';
+      for (var j = 0; j < th.sw.length; j++) sw += '<i style="background:' + th.sw[j] + '"></i>';
+      html += '<button class="theme-opt" type="button" data-theme-id="' + th.id + '" aria-pressed="' +
+        (th.id === cur ? 'true' : 'false') + '"><span class="theme-sw">' + sw + '</span>' + th.t + '</button>';
+    }
+    $('themeRow').innerHTML = html;
+  }
+  $('themeRow').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-theme-id]');
+    if (!b) return;
+    S.theme = b.getAttribute('data-theme-id');
+    save(); applyTheme(); renderTheme(); buzz(8);
+    toast('테마: ' + b.textContent.trim());
+  });
+  /* 시스템 설정을 따르는 동안에는 기기 설정 변화에 맞춰 상태바 색을 갱신 */
+  try {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onScheme = function () { if (themeId() === 'auto') syncThemeColor(); };
+    if (mq.addEventListener) mq.addEventListener('change', onScheme);
+    else if (mq.addListener) mq.addListener(onScheme);
+  } catch (e) {}
 
   function fmtDur(ms) {
     if (ms < HOUR) return Math.floor(ms / MIN) + '분';
@@ -1157,6 +1341,7 @@
     $('inStart').value = S.startedAt ? toLocalInput(S.startedAt) : '';
     $('btnStop').disabled = !S.startedAt;
     updateNotifyBtn();
+    renderTheme();
   }
 
   function renderAll() {
@@ -1422,6 +1607,7 @@
 
   /* ================= 시작 ================= */
   var hash = (location.hash || '').replace('#', '');
+  applyTheme();
   buildRankDefs();
   renderSettings();
   renderAll();

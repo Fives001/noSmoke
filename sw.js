@@ -1,5 +1,5 @@
 /* noSmoke 서비스 워커 - 오프라인 실행용 */
-var CACHE = 'nosmoke-v2';
+var CACHE = 'nosmoke-v3';
 var ASSETS = [
   './',
   './index.html',
